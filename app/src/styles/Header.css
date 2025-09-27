@@ -1,19 +1,24 @@
 .header {
-  background-color: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--card-border);
+  box-shadow: var(--shadow-lg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-container {
-  max-width: 80rem;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--spacing-lg);
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 0;
+  padding: var(--spacing-lg) 0;
 }
 
 .header-left {
@@ -22,29 +27,63 @@
 }
 
 .header-title {
-  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  font-size: 2rem;
   font-weight: 700;
-  color: #111827;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+  margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .header-badge {
-  margin-left: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  margin-left: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: 0.875rem;
   font-weight: 500;
-  background-color: #dbeafe;
-  color: #1e40af;
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  color: var(--text-primary);
   border-radius: 9999px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--card-border);
 }
 
-@media (min-width: 640px) {
+/* Style the RainbowKit connect button */
+.header button {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--radius-lg) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.header button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-glow) !important;
+}
+
+@media (max-width: 640px) {
   .header-container {
-    padding: 0 1.5rem;
+    padding: 0 var(--spacing-md);
+  }
+
+  .header-title {
+    font-size: 1.5rem;
+  }
+
+  .header-badge {
+    display: none;
   }
 }
 
 @media (min-width: 1024px) {
   .header-container {
-    padding: 0 2rem;
+    padding: 0 var(--spacing-xl);
   }
 }

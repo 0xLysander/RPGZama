@@ -73,45 +73,62 @@ export function AdminPanel() {
 
   if (!isOwner) {
     return (
-      <div className="status-card">
-        <h3 className="status-title">Admin</h3>
-        <p>You are not the contract owner.</p>
+      <div className="status-container">
+        <div className="status-card">
+          <h3 className="status-title">🛡️ Admin Panel</h3>
+          <div style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-md)', opacity: 0.6 }}>🔒</div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+              Access denied. You are not the contract owner.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="status-card">
-      <h3 className="status-title">Initialize Answers</h3>
-      <p style={{ color: '#6b7280', marginTop: 0 }}>Only owner can initialize, and only once.</p>
+    <div className="status-container">
+      <div className="status-card">
+        <h3 className="status-title">🛡️ Initialize Answers</h3>
+        <p style={{ color: 'var(--text-secondary)', marginTop: 0, textAlign: 'center', fontSize: '1.1rem' }}>
+          Only the contract owner can initialize answers, and only once.
+        </p>
 
-      <div className="status-grid" style={{ marginTop: '.5rem' }}>
-        {[0,1,2,3].map((i) => (
-          <div key={i} className="status-item">
-            <span className="status-label">Answer {i+1}</span>
-            <select
-              value={answers[i] ?? ''}
-              onChange={(e) => setAnswer(i, Number(e.target.value) as Choice)}
-              style={{ padding: '.4rem .5rem', border: '1px solid #e5e7eb', borderRadius: '.375rem' }}
-            >
-              <option value="" disabled>Select</option>
-              <option value={1}>Yes (1)</option>
-              <option value={2}>No (2)</option>
-            </select>
-          </div>
-        ))}
-      </div>
+        <div className="status-grid" style={{ marginTop: 'var(--spacing-xl)' }}>
+          {[0,1,2,3].map((i) => (
+            <div key={i} className="status-item">
+              <span className="status-label">🎯 Answer {i+1}</span>
+              <select
+                value={answers[i] ?? ''}
+                onChange={(e) => setAnswer(i, Number(e.target.value) as Choice)}
+              >
+                <option value="" disabled>Select Answer</option>
+                <option value={1}>✅ Yes (1)</option>
+                <option value={2}>❌ No (2)</option>
+              </select>
+            </div>
+          ))}
+        </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginTop: '1rem' }}>
-        <button
-          onClick={submit}
-          disabled={!!initialized || submitting || confirming || zamaLoading || answers.some((a) => a === null)}
-          className="submit-btn"
-          style={{ background: initialized ? '#9ca3af' : '#3b82f6' }}
-        >
-          {initialized ? 'Already Initialized' : confirming ? 'Confirming...' : zamaLoading ? 'Initializing Zama...' : answers.some((a) => a === null) ? 'Select All Answers' : 'Initialize' }
-        </button>
-        {initialized ? <span className="hint">Answers already set.</span> : null}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-2xl)', paddingTop: 'var(--spacing-xl)', borderTop: '1px solid var(--card-border)' }}>
+          <button
+            onClick={submit}
+            disabled={!!initialized || submitting || confirming || zamaLoading || answers.some((a) => a === null)}
+            className="submit-btn"
+          >
+            {initialized ? '✅ Already Initialized' :
+             confirming ? '⏳ Confirming Transaction...' :
+             zamaLoading ? '🔄 Initializing Zama...' :
+             answers.some((a) => a === null) ? '📝 Select All Answers' :
+             '🚀 Initialize Answers' }
+          </button>
+          {initialized ? (
+            <div className="hint">
+              ✅ Answers have been successfully initialized and encrypted.
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -1,15 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  /* Color Palette - Dark Fantasy Theme */
+  --primary-bg: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b47 100%);
+  --secondary-bg: rgba(30, 41, 59, 0.8);
+  --card-bg: rgba(51, 65, 85, 0.9);
+  --card-border: rgba(148, 163, 184, 0.2);
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #06b6d4;
+  --accent-gold: #fbbf24;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Typography */
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+
+  font-family: var(--font-body);
+  line-height: 1.6;
   font-weight: 400;
+  color: var(--text-primary);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background: var(--primary-bg);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  color: var(--text-primary);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-primary);
+  color: var(--text-primary);
 }
