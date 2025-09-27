@@ -70,7 +70,7 @@ export function GamePlay() {
       <div className="game-card">
         <h2 className="game-title">Encrypted RPG</h2>
         <p className="game-desc">Answer 4 questions (Yes=1 / No=2). If all correct, you earn an NFT.</p>
-
+        <p>Your selections are encrypted. Also the right answer is encrypted.</p>
         {npcs.map((npc, idx) => (
           <div key={idx} className={`npc-block ${idx > step ? 'locked' : ''}`}>
             <div className="npc-header">
