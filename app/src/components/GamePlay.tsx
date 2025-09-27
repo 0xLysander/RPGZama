@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { Contract } from 'ethers';
 import { useEthersSigner } from '../hooks/useEthersSigner';
@@ -13,8 +13,7 @@ export function GamePlay() {
   const { instance, isLoading: zamaLoading } = useZamaInstance();
   const signerPromise = useEthersSigner();
 
-  const [step, setStep] = useState<number>(0);
-  const [choices, setChoices] = useState<Choice[]>([1, 1, 1, 1]);
+  const [choices, setChoices] = useState<Array<Choice | null>>([null, null, null, null]);
   const [submitting, setSubmitting] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [done, setDone] = useState(false);
@@ -28,22 +27,24 @@ export function GamePlay() {
 
   const setChoice = (idx: number, value: Choice) => {
     setChoices((prev) => {
-      const next = [...prev] as Choice[];
+      const next = [...prev];
       next[idx] = value;
       return next;
     });
-    if (idx < 3) setStep(idx + 1); else setStep(4);
   };
 
+  const currentStep = useMemo(() => choices.findIndex((c) => c === null), [choices]);
+  const allSelected = useMemo(() => choices.every((c) => c !== null), [choices]);
+
   const submit = async () => {
-    if (!instance || !address || !signerPromise) return;
+    if (!instance || !address || !signerPromise || !allSelected) return;
     setSubmitting(true);
     try {
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
-      input.add8(choices[0]);
-      input.add8(choices[1]);
-      input.add8(choices[2]);
-      input.add8(choices[3]);
+      input.add8(choices[0] as Choice);
+      input.add8(choices[1] as Choice);
+      input.add8(choices[2] as Choice);
+      input.add8(choices[3] as Choice);
       const enc = await input.encrypt();
 
       const signer = await signerPromise;
@@ -71,24 +72,26 @@ export function GamePlay() {
         <h2 className="game-title">Encrypted RPG</h2>
         <p className="game-desc">Answer 4 questions (Yes=1 / No=2). If all correct, you earn an NFT.</p>
         <p>Your selections are encrypted. Also the right answer is encrypted.</p>
-        {npcs.map((npc, idx) => (
-          <div key={idx} className={`npc-block ${idx > step ? 'locked' : ''}`}>
+        {npcs.map((npc, idx) => {
+          const locked = currentStep !== -1 && idx > currentStep;
+          return (
+          <div key={idx} className={`npc-block ${locked ? 'locked' : ''}`}>
             <div className="npc-header">
               <span className="npc-name">{npc.name}</span>
               <span className="npc-step">{idx + 1}/4</span>
             </div>
             <div className="npc-prompt">{npc.prompt}</div>
             <div className="npc-actions">
-              <button disabled={idx > step} onClick={() => setChoice(idx, 1)} className={`action-btn ${choices[idx] === 1 ? 'selected' : ''}`}>Yes (1)</button>
-              <button disabled={idx > step} onClick={() => setChoice(idx, 2)} className={`action-btn ${choices[idx] === 2 ? 'selected' : ''}`}>No (2)</button>
+              <button disabled={locked} onClick={() => setChoice(idx, 1)} className={`action-btn ${choices[idx] === 1 ? 'selected' : ''}`}>Yes (1)</button>
+              <button disabled={locked} onClick={() => setChoice(idx, 2)} className={`action-btn ${choices[idx] === 2 ? 'selected' : ''}`}>No (2)</button>
             </div>
           </div>
-        ))}
+        );})}
 
         <div className="submit-row">
           <button
             className="submit-btn"
-            disabled={zamaLoading || submitting || confirming || step < 4}
+            disabled={zamaLoading || submitting || confirming || !allSelected}
             onClick={submit}
           >
             {zamaLoading ? 'Initializing Zama...' : confirming ? 'Confirming...' : 'Submit Choices'}
@@ -101,4 +104,3 @@ export function GamePlay() {
     </div>
   );
 }
-

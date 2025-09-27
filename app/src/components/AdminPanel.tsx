@@ -28,14 +28,14 @@ export function AdminPanel() {
   const isOwner =
     !!address && !!owner && (address as string).toLowerCase() === (owner as string).toLowerCase();
 
-  const [answers, setAnswers] = useState<Choice[]>([1, 1, 1, 1]);
+  const [answers, setAnswers] = useState<Array<Choice | null>>([null, null, null, null]);
   const [submitting, setSubmitting] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
   const setAnswer = (idx: number, value: Choice) => {
     setAnswers((prev) => {
       const next = [...prev] as Choice[];
-      next[idx] = value;
+      (next as Array<Choice | null>)[idx] = value;
       return next;
     });
   };
@@ -43,13 +43,14 @@ export function AdminPanel() {
   const submit = async () => {
     if (!isOwner) return;
     if (!instance || !address || !signerPromise) return;
+    if (answers.some((a) => a === null)) return;
     setSubmitting(true);
     try {
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
-      input.add8(answers[0]);
-      input.add8(answers[1]);
-      input.add8(answers[2]);
-      input.add8(answers[3]);
+      input.add8(answers[0] as Choice);
+      input.add8(answers[1] as Choice);
+      input.add8(answers[2] as Choice);
+      input.add8(answers[3] as Choice);
       const enc = await input.encrypt();
 
       const signer = await signerPromise;
@@ -89,10 +90,11 @@ export function AdminPanel() {
           <div key={i} className="status-item">
             <span className="status-label">Answer {i+1}</span>
             <select
-              value={answers[i]}
+              value={answers[i] ?? ''}
               onChange={(e) => setAnswer(i, Number(e.target.value) as Choice)}
               style={{ padding: '.4rem .5rem', border: '1px solid #e5e7eb', borderRadius: '.375rem' }}
             >
+              <option value="" disabled>Select</option>
               <option value={1}>Yes (1)</option>
               <option value={2}>No (2)</option>
             </select>
@@ -103,15 +105,14 @@ export function AdminPanel() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginTop: '1rem' }}>
         <button
           onClick={submit}
-          disabled={!!initialized || submitting || confirming || zamaLoading}
+          disabled={!!initialized || submitting || confirming || zamaLoading || answers.some((a) => a === null)}
           className="submit-btn"
           style={{ background: initialized ? '#9ca3af' : '#3b82f6' }}
         >
-          {initialized ? 'Already Initialized' : confirming ? 'Confirming...' : zamaLoading ? 'Initializing Zama...' : 'Initialize' }
+          {initialized ? 'Already Initialized' : confirming ? 'Confirming...' : zamaLoading ? 'Initializing Zama...' : answers.some((a) => a === null) ? 'Select All Answers' : 'Initialize' }
         </button>
         {initialized ? <span className="hint">Answers already set.</span> : null}
       </div>
     </div>
   );
 }
-
