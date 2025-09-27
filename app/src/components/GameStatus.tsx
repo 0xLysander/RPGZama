@@ -1,45 +1,66 @@
-import React from 'react';
-import { GameState } from '../types';
+import { useAccount, useReadContract } from 'wagmi';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../config/contracts';
+import '../styles/GameStatus.css';
 
-interface GameStatusProps {
-  gameState: GameState;
-}
+export function GameStatus() {
+  const { address } = useAccount();
 
-const GameStatus: React.FC<GameStatusProps> = ({ gameState }) => {
-  const progress = (gameState.currentNPC / gameState.totalNPCs) * 100;
+  const { data: status } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getStatus',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
+  });
+
+  const { data: balance } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
+  });
+
+  if (!address) {
+    return (
+      <div className="status-container">
+        <div className="status-card">
+          <p>Please connect your wallet to view status.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const submitted = !!status && (status as any)[0] as boolean;
+  const pending = !!status && (status as any)[1] as boolean;
+  const won = !!status && (status as any)[2] as boolean;
+  const bal = (balance as any)?.toString?.() ?? '0';
 
   return (
-    <div className="game-status">
-      <h2>Quest Progress</h2>
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
-      <p>
-        NPC {gameState.currentNPC} of {gameState.totalNPCs} completed
-      </p>
-
-      {gameState.gameCompleted && (
-        <div className="game-completed">
-          <h3>🎉 Quest Complete! 🎉</h3>
-          {gameState.hasWonNFT ? (
-            <div className="nft-reward">
-              <h4>🏆 Congratulations! 🏆</h4>
-              <p>You've won an NFT reward! All your choices were correct.</p>
-              <p>NFTs owned: {gameState.nftBalance}</p>
-            </div>
-          ) : (
-            <div>
-              <p>You've completed the quest, but didn't get all answers right.</p>
-              <p>Try again to win the NFT reward!</p>
-            </div>
-          )}
+    <div className="status-container">
+      <div className="status-card">
+        <h3 className="status-title">Your Game Status</h3>
+        <div className="status-grid">
+          <div className="status-item">
+            <span className="status-label">Submitted</span>
+            <span className="status-value">{submitted ? 'Yes' : 'No'}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Decryption Pending</span>
+            <span className="status-value">{pending ? 'Yes' : 'No'}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Winner</span>
+            <span className="status-value winner">{won ? 'Yes' : 'No'}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">NFT Balance</span>
+            <span className="status-value">{bal}</span>
+          </div>
         </div>
-      )}
+        <p className="status-hint">If you won, the contract mints an NFT to you after decryption.</p>
+      </div>
     </div>
   );
-};
+}
 
-export default GameStatus;
