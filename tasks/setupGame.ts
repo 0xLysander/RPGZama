@@ -1,52 +1,74 @@
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
-task("setup-game")
-  .addParam("contract", "The RPG contract address")
-  .addOptionalParam("answers", "Comma-separated correct answers (1,1,2,1)", "1,1,2,1")
-  .setDescription("Set up the RPG game with correct answers")
-  .setAction(async function (taskArguments: TaskArguments, { ethers, fhevm }) {
-    const { contract: contractAddress, answers } = taskArguments;
+// Initialize answers: 4 choices (1=yes, 2=no)
+task("rpg:init-answers", "Initialize encrypted answers for RPGZama")
+  .addOptionalParam("address", "Optionally specify RPGZama address")
+  .addParam("a1", "Answer 1 (1 or 2)")
+  .addParam("a2", "Answer 2 (1 or 2)")
+  .addParam("a3", "Answer 3 (1 or 2)")
+  .addParam("a4", "Answer 4 (1 or 2)")
+  .setAction(async function (args: TaskArguments, hre) {
+    const { deployments, ethers, fhevm } = hre;
 
-    console.log("Setting up RPG game at:", contractAddress);
+    const dep = args.address ? { address: args.address } : await deployments.get("RPGZama");
+    const signers = await ethers.getSigners();
 
-    const [signer] = await ethers.getSigners();
-    const rpgGame = await ethers.getContractAt("RPGGame", contractAddress);
-
-    // Parse answers
-    const correctAnswers = answers.split(",").map((a: string) => parseInt(a.trim()));
-
-    if (correctAnswers.length !== 4) {
-      throw new Error("Must provide exactly 4 answers");
+    const v1 = parseInt(args.a1);
+    const v2 = parseInt(args.a2);
+    const v3 = parseInt(args.a3);
+    const v4 = parseInt(args.a4);
+    if (![v1, v2, v3, v4].every((v) => v === 1 || v === 2)) {
+      throw new Error("Answers must be 1 or 2");
     }
 
-    console.log("Correct answers:", correctAnswers);
+    await fhevm.initializeCLIApi();
 
-    // Create encrypted inputs for the correct answers
-    const input = fhevm.createEncryptedInput(contractAddress, signer.address);
+    const input = fhevm.createEncryptedInput(dep.address, signers[0].address);
+    input.add8(v1);
+    input.add8(v2);
+    input.add8(v3);
+    input.add8(v4);
+    const enc = await input.encrypt();
 
-    correctAnswers.forEach((answer: number) => {
-      input.add8(answer);
-    });
-
-    const encryptedInput = await input.encrypt();
-
-    console.log("Encrypted input created, setting correct answers...");
-
-    // Set the correct answers
-    const tx = await rpgGame.setCorrectAnswers(
-      [
-        encryptedInput.handles[0],
-        encryptedInput.handles[1],
-        encryptedInput.handles[2],
-        encryptedInput.handles[3]
-      ],
-      encryptedInput.inputProof
-    );
-
+    const rpg = await ethers.getContractAt("RPGZama", dep.address);
+    const tx = await rpg
+      .connect(signers[0])
+      .initializeAnswers(enc.handles[0], enc.handles[1], enc.handles[2], enc.handles[3], enc.inputProof);
+    console.log(`initializeAnswers tx: ${tx.hash}`);
     await tx.wait();
-
-    console.log("Game setup completed!");
-    console.log("Transaction hash:", tx.hash);
-    console.log("Players can now start the game!");
+    console.log(`Initialized answers on ${dep.address}`);
   });
+
+// Submit choices
+task("rpg:submit", "Submit encrypted choices for RPGZama")
+  .addOptionalParam("address", "Optionally specify RPGZama address")
+  .addParam("c1", "Choice 1 (1 or 2)")
+  .addParam("c2", "Choice 2 (1 or 2)")
+  .addParam("c3", "Choice 3 (1 or 2)")
+  .addParam("c4", "Choice 4 (1 or 2)")
+  .setAction(async function (args: TaskArguments, hre) {
+    const { deployments, ethers, fhevm } = hre;
+
+    const dep = args.address ? { address: args.address } : await deployments.get("RPGZama");
+    const signers = await ethers.getSigners();
+
+    const v = [parseInt(args.c1), parseInt(args.c2), parseInt(args.c3), parseInt(args.c4)];
+    if (!v.every((x) => x === 1 || x === 2)) throw new Error("Choices must be 1 or 2");
+
+    await fhevm.initializeCLIApi();
+    const input = fhevm.createEncryptedInput(dep.address, signers[0].address);
+    input.add8(v[0]);
+    input.add8(v[1]);
+    input.add8(v[2]);
+    input.add8(v[3]);
+    const enc = await input.encrypt();
+
+    const rpg = await ethers.getContractAt("RPGZama", dep.address);
+    const tx = await rpg
+      .connect(signers[0])
+      .submitChoices(enc.handles[0], enc.handles[1], enc.handles[2], enc.handles[3], enc.inputProof);
+    console.log(`submitChoices tx: ${tx.hash}`);
+    await tx.wait();
+  });
+
