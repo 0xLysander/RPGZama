@@ -1,0 +1,8 @@
+:root { --bg: #f9fafb; --card: #ffffff; --text: #111827; --muted: #6b7280; --primary: #3b82f6; --accent: #10b981; }
+.game-app { min-height: 100vh; background: var(--bg); }
+.main-content { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+.tab-navigation { display: flex; justify-content: center; margin-bottom: 1rem; }
+.tab-nav { display: flex; gap: .5rem; }
+.tab-button { padding: .5rem 1rem; border: 1px solid #e5e7eb; background: #fff; border-radius: .375rem; cursor: pointer; }
+.tab-button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.tab-button.inactive { color: var(--text); }

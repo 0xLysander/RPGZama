@@ -1,0 +1,9 @@
+.status-container { display: flex; justify-content: center; }
+.status-card { background: #fff; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 1rem; max-width: 700px; width: 100%; }
+.status-title { margin: 0 0 .75rem; }
+.status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.status-item { border: 1px solid #e5e7eb; border-radius: .5rem; padding: .75rem; }
+.status-label { display: block; color: #6b7280; margin-bottom: .25rem; }
+.status-value { font-weight: 600; }
+.status-value.winner { color: #10b981; }
+.status-hint { margin-top: .75rem; color: #6b7280; }
