@@ -1,5 +1,5 @@
 // Update this address after deploying RPGZama on Sepolia
-export const CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const CONTRACT_ADDRESS = '0xBc5e29373bb0b6A5944EdaD6AbA089047f04D25E';
 
 // ABI for RPGZama contract
 export const CONTRACT_ABI = [
